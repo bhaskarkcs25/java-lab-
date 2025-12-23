@@ -1,0 +1,158 @@
+import java.util.Scanner;
+
+class Account {
+    String customerName;
+    String accountNumber;
+    String accountType;
+    double balance;
+
+    Account(String name, String accNo, String type, double bal) {
+        customerName = name;
+        accountNumber = accNo;
+        accountType = type;
+        balance = bal;
+    }
+
+    void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            System.out.println("Amount deposited: " + amount);
+        } else {
+            System.out.println("Invalid deposit amount!");
+        }
+    }
+
+    void displayBalance() {
+        System.out.println("Current Balance: " + balance);
+    }
+
+    void withdraw(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            System.out.println("Amount withdrawn: " + amount);
+        } else {
+            System.out.println("Insufficient balance!");
+        }
+    }
+}
+
+class SavAcct extends Account {
+    double interestRate = 0.05;
+
+    SavAcct(String name, String accNo, double bal) {
+        super(name, accNo, "Savings", bal);
+    }
+
+    void computeInterest() {
+        double interest = balance * interestRate;
+        balance += interest;
+        System.out.println("Interest added: " + interest);
+    }
+
+    @Override
+    void withdraw(double amount) {
+        if (amount <= balance) {
+            balance -= amount;
+            System.out.println("Amount withdrawn: " + amount);
+        } else {
+            System.out.println("Insufficient balance!");
+        }
+    }
+}
+
+class CurAcct extends Account {
+    final double MIN_BALANCE = 500.0;
+    final double PENALTY = 50.0;
+
+    CurAcct(String name, String accNo, double bal) {
+        super(name, accNo, "Current", bal);
+    }
+
+    @Override
+    void withdraw(double amount) {
+        if (amount > balance) {
+            System.out.println("Insufficient balance!");
+            return;
+        }
+
+        balance -= amount;
+        System.out.println("Amount withdrawn: " + amount);
+
+        if (balance < MIN_BALANCE) {
+            balance -= PENALTY;
+            System.out.println("Balance below minimum. Penalty imposed: " + PENALTY);
+        }
+    }
+}
+
+public class Bank {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter Customer Name: ");
+        String name = sc.nextLine();
+
+        System.out.println("Enter Account Number: ");
+        String accNo = sc.nextLine();
+
+        System.out.println("Select Account Type (1-Savings, 2-Current): ");
+        int type = sc.nextInt();
+
+        System.out.println("Enter Initial Balance: ");
+        double bal = sc.nextDouble();
+
+        Account acc;
+
+        if (type == 1) {
+            acc = new SavAcct(name, accNo, bal);
+        } else {
+            acc = new CurAcct(name, accNo, bal);
+        }
+
+        while (true) {
+            System.out.println("\n--- MENU ---");
+            System.out.println("1. Deposit");
+            System.out.println("2. Withdraw");
+            System.out.println("3. Display Balance");
+            System.out.println("4. Compute Interest (Savings Only)");
+            System.out.println("5. Exit");
+            System.out.print("Enter choice: ");
+
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter amount to deposit: ");
+                    acc.deposit(sc.nextDouble());
+                    break;
+
+                case 2:
+                    System.out.print("Enter amount to withdraw: ");
+                    acc.withdraw(sc.nextDouble());
+                    break;
+
+                case 3:
+                    acc.displayBalance();
+                    break;
+
+                case 4:
+                    if (acc instanceof SavAcct) {
+                        ((SavAcct) acc).computeInterest();
+                    } else {
+                        System.out.println("Interest not applicable for Current Account.");
+                    }
+                    break;
+
+                case 5:
+                    System.out.println("Thank you for using the Bank System!");
+                    sc.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+        }
+    }
+}
+
+
